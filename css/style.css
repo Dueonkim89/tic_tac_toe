@@ -19,11 +19,16 @@ h1 {
   background: #fff;
   border-radius: 4px;
   box-shadow: 0 2px 0 rgba(0, 0, 0, 0.1);
-  display: inline-block;
+  display: block;
   padding: 1.25em 3em;
   text-decoration: none;
   -webkit-transition: 0.25s ease;
-  transition: 0.25s ease; }
+  transition: 0.25s ease; 
+  max-width: 165px;
+  margin: 0 auto 1.15rem;
+  font-weight: bold;
+  }
+  
   .button:hover {
     color: #000; }
 
