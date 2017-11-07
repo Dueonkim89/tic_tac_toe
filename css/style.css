@@ -143,4 +143,10 @@ h1 {
       background-color: #3688C3;
       background-image: url(../img/x.svg); }
 
+#player1, #player2 {
+	font-size: 1.7rem;
+}
 
+svg {
+	margin-left: 3rem;
+}
