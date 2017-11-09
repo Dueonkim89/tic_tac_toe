@@ -147,6 +147,11 @@ h1 {
 	font-size: 1.7rem;
 }
 
+#player1.active span,
+#player2.active span {
+	color: #fff;
+}
+
 svg {
 	margin-left: 3rem;
 }

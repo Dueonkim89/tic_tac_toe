@@ -7,17 +7,16 @@ const ticTacToe = {
 						body: document.querySelector('body'),
 						player1: document.getElementById('player1'),
 						player2: document.getElementById('player2'),
-						ul: document.querySelector('.boxes')
-						li: document.querySelectorAll('.box');
+						ul: document.querySelector('.boxes'),
+						li: document.querySelectorAll('.box')
 					},		
 			
 	userPromptQuestion: 'What is your name?',
 	userFriendPromptQuestion: "What is your friend's name?",
 	
 	//put in the win patterns
-	winPatterns = [ [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 4, 8], 
-		[0, 3, 6], [1, 4, 7], [2, 5, 8], [2, 4, 6]
-	],
+	winPatterns: [ [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 4, 8], 
+				[0, 3, 6], [1, 4, 7], [2, 5, 8], [2, 4, 6] ],
 	
 	//Constructor function for the players, to be worked on....
 	createPlayer: function(name, DOMElement, symbol, className) {
@@ -26,29 +25,49 @@ const ticTacToe = {
 		this.symbol = symbol;
 		this.className = className;
 		this.makeMove = function() {
-			//if DOMElement contains .active class
-			if (this.DOMElement.classList.contains('active') {
-				//mouse over event on .box
-				//if .box doesnt contain the word filled 
-				//set css background of .box to this.symbol
+			//make reference to this.symbol, this.DOMElement, this.className before we go deep into callback.
+			let symbol = this.symbol;
+			let currentUser = this.DOMElement;
+			let className = this.className;
+			let nextElement = currentUser.nextElementSibling;
+			//if DOMElement contains .active class run the following code.
+			if (this.DOMElement.classList.contains('active')) {
+				for (let i = 0; i< ticTacToe.DOMReferences.li.length; i++) {
+					//mouseover event.
+					ticTacToe.DOMReferences.li[i].addEventListener('mouseover',  function( event ) {
+						if (!(event.target.classList.contains('box-filled-1')) || !(event.target.classList.contains('box-filled-2'))) {
+							event.target.style.backgroundImage = `url(./img/${symbol})`;
+						}
+					});
+					//mouseout event
+					ticTacToe.DOMReferences.li[i].addEventListener('mouseout',  function( event ) {
+						if (!(event.target.classList.contains('box-filled-1')) || !(event.target.classList.contains('box-filled-2'))) {
+							//reset image back to grey
+							event.target.style.backgroundImage = '';
+							event.target.style.backgroundImage = '#EFEFEF';
+						}
+					});
+					//click event
+					ticTacToe.DOMReferences.li[i].addEventListener('click',  function( event ) {
+						if (!(event.target.classList.contains('box-filled-1')) || !(event.target.classList.contains('box-filled-2'))) {
+							//mark list item with proper class
+							event.target.classList.add(className);
+							//remove active from current DOM element
+							currentUser.classList.remove('active');
+							//if exists traverse to next sibling and add active class
+							if (nextElement) {
+								nextElement.classList.add('active');
+							//else go to previous element sibling  and add active class
+							} else {
+								currentUser.previousElementSibling.add('active');
+							}	
+									
+						}
+					});					
+				}
 				
-				//mouseout event back to #EFEFEF;
-				
-				
-				
-				//click event on .box
-				//if .box doesnt contain class box-filled-1 or box-filled-2
-				//add the proper this.className on click event
-				//remove .active from this.DOMElement
-				//traverse to sibling element
-				//add .active class to sibling
-				
-				
-			}
-		};
-		
-		
-	
+			}														
+		};	
 	},
 		
 	
@@ -130,8 +149,8 @@ const ticTacToe = {
 	showBoard: function() {
 		//for loop to remove all the previous X's and O's from game board
 		for (let i = 0; i < this.DOMReferences.li.length; i++) {
-			this.DOMReferences.li[i].classList.remove('box box-filled-1');
-			this.DOMReferences.li[i].classList.remove('box box-filled-2');
+			this.DOMReferences.li[i].classList.remove('box-filled-1');
+			this.DOMReferences.li[i].classList.remove('box-filled-2');
 			this.DOMReferences.li[i].classList.add('box');
 		}
 	
@@ -144,9 +163,9 @@ const ticTacToe = {
 		console.log(p1.name);
 		console.log(p2.name);
 		
-		
 		//invoke function on constructor function to see who has active class.
-		
+		p1.makeMove();
+		p2.makeMove();
 	
 		
 		// if no winning combo || 9 boxes are not filled
