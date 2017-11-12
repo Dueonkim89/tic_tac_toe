@@ -73,28 +73,40 @@ const ticTacToe = {
 					//check if no more empty squares 
 					emptyBoard();					
 					//check if move is a win combo
-					winCombo(p1.className);
+					winCombo(p1);
+					//toggle active class only when condition is met.
+					toggleActive();
 				} else if ( !(event.target.classList.contains('box-filled-1')) && !(event.target.classList.contains('box-filled-2')) && p2.DOMElement.classList.contains('active') ) {
 					event.target.classList.add(p2.className);
 					emptyBoard();
-					winCombo(p2.className);
+					winCombo(p2);
+					toggleActive();
 				}					
-				//toggle active class
-				toggleActive();
 			});							
 		}
 	},
 	
-	winScreen: function() {
-		console.log('win screen to be built');
-		//func winScreen	
-			//put in class provided on constructor function. 
-			//Winner: 
-			//put in name provided on constructor function
-			//see template			
+	winScreen: function(player) {
+		ticTacToe.DOMReferences.board.style.display = 'none';
+		ticTacToe.endingScreenTemplate();
+		const message = document.querySelector('.message');
+		//put in name provided on constructor function	
+		message.textContent = `Winner: ${player.name}`;
+		const screenDiv = document.querySelector('#finish');
+		//give proper class name provided on constructor function. 
+		screenDiv.className = `screen screen-win ${player.winClass}`;
+		//delegated event handler when button is clicked to start new game.
+		ticTacToe.DOMReferences.body.addEventListener('click', function (event) {
+			if (event.target.tagName === 'A' && event.target.id === 'newButton') {
+				//remove #finish
+				screenDiv.parentNode.removeChild(screenDiv);
+				//run this.showBoard();
+				ticTacToe.showBoard();
+			}							
+		});					
 	},
 	
-	winCombo: function(className) {
+	winCombo: function(player) {
 		//provide boolean value as flag checker.
 		let gameOver = false;
 	/*	NOTE: IF A METHOD IS CALLED WITHIN A CALLBACK, BE CAREFUL WITH THIS KEYWORD. 
@@ -104,14 +116,14 @@ const ticTacToe = {
 			let eachPattern = ticTacToe.winPatterns[i];
 			//map each winPattern to see if true or false
 			let result = eachPattern.map(function(x) {
-				return ticTacToe.DOMReferences.li[x].classList.contains(className);
+				return ticTacToe.DOMReferences.li[x].classList.contains(player.className);
 		
 			});
 			//if array doesnt contain any false values, then winning combo exists.
 			if (result.indexOf(false) === -1) {
 				let gameOver = true;
 				//winScreen method
-				return ticTacToe.winScreen();
+				return ticTacToe.winScreen(player);
 			}		
 		}
 		if (!gameOver) {
@@ -240,8 +252,7 @@ const ticTacToe = {
 		const message = document.querySelector('.message');
 		message.textContent = "It's a Tie!";
 		const screenDiv = document.querySelector('#finish');
-		//reset class and give proper class name
-		screenDiv.className = '';
+		//give proper class name
 		screenDiv.className = "screen screen-win screen-win-tie";
 		
 		//delegated event handler when button is clicked to start new game.
@@ -251,7 +262,6 @@ const ticTacToe = {
 				screenDiv.parentNode.removeChild(screenDiv);
 				//run this.showBoard();
 				ticTacToe.showBoard();
-				
 			}							
 		});
 	},
