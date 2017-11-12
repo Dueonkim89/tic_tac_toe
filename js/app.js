@@ -201,6 +201,8 @@ const ticTacToe = {
 		for (let i = 0; i < this.DOMReferences.li.length; i++) {
 			this.DOMReferences.li[i].classList.remove('box-filled-1');
 			this.DOMReferences.li[i].classList.remove('box-filled-2');
+			this.DOMReferences.li[i].style.backgroundImage = '';
+			this.DOMReferences.li[i].style.backgroundImage = '#EFEFEF';
 		}
 		const startDiv = document.querySelector('.screen-start');
 		startDiv.style.display = 'none';
@@ -233,17 +235,45 @@ const ticTacToe = {
 	},
 
 	drawScreen: function() {
-		//It's a Tie!
-		//class name is screen-win-tie
+		ticTacToe.DOMReferences.board.style.display = 'none';
+		ticTacToe.endingScreenTemplate();
+		const message = document.querySelector('.message');
+		message.textContent = "It's a Tie!";
+		const screenDiv = document.querySelector('#finish');
+		//reset class and give proper class name
+		screenDiv.className = '';
+		screenDiv.className = "screen screen-win screen-win-tie";
+		
 		//delegated event handler when button is clicked to start new game.
-		//hide screen-win
-		//run this.showBoard();
-		console.log('draw game screen to be built');
+		ticTacToe.DOMReferences.body.addEventListener('click', function (event) {
+			if (event.target.tagName === 'A' && event.target.id === 'newButton') {
+				//remove #finish
+				screenDiv.parentNode.removeChild(screenDiv);
+				//run this.showBoard();
+				ticTacToe.showBoard();
+				
+			}							
+		});
 	},
 	
 	endingScreenTemplate: function() {
 		//generic template for ending screen
 		//can be specialized when invoked to the winner and draw results.
+		const screenDiv = document.createElement('div');
+		screenDiv.id = "finish";
+		ticTacToe.DOMReferences.body.insertBefore(screenDiv, ticTacToe.DOMReferences.board);
+		const header = document.createElement('header');
+		const h1 = document.createElement('h1');
+		h1.textContent = 'Tic Tac Toe';
+		const message = document.createElement('p');
+		message.className = "message";	
+		const newButton = document.createElement('a');
+		newButton.className = "button";	
+		newButton.textContent = 'New Game';
+		newButton.id = "newButton";
+		screenDiv.appendChild(header);
+		header.appendChild(h1);
+		header.appendChild(message);
+		header.appendChild(newButton);		
 	}
-
 };
