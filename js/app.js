@@ -26,23 +26,21 @@ const ticTacToe = {
 				
 	
 	//Constructor function for the players, to be worked on....
-	createPlayer: function(name, DOMElement, symbol, className) {
+	createPlayer: function(name, DOMElement, symbol, className, winClass) {
 		this.name = name;
 		this.DOMElement = DOMElement;
 		this.symbol = symbol;
 		this.className = className;	
+		this.winClass = winClass;
 	},
 	
 	makeMove: function() {
-		//counter
-		let count = 0;
 		//reference to object keys before going deep into callback
 		let p1 = this.playerOne;
 		let p2 = this.playerTwo;	
 		let emptyBoard = this.emptyBoard;
 		let winCombo = this.winCombo;
 		let toggleActive = this.toggleActive;
-		
 		
 		for (let i = 0; i< this.DOMReferences.li.length; i++) {	
 			//mouseover event.
@@ -69,34 +67,30 @@ const ticTacToe = {
 			
 			//click event
 			this.DOMReferences.li[i].addEventListener('click',  function(event) {
-				if ( !(event.target.classList.contains('box-filled-1')) && !(event.target.classList.contains('box-filled-2')) && p1.DOMElement.classList.contains('active') ) {
-					count ++
-					//check if no more empty squares 
-					emptyBoard(count);	
+				if ( !(event.target.classList.contains('box-filled-1')) && !(event.target.classList.contains('box-filled-2')) && p1.DOMElement.classList.contains('active') ) {	
 					//add proper class to that square.
 					event.target.classList.add(p1.className);
+					//check if no more empty squares 
+					emptyBoard();					
 					//check if move is a win combo
 					winCombo(p1.className);
 				} else if ( !(event.target.classList.contains('box-filled-1')) && !(event.target.classList.contains('box-filled-2')) && p2.DOMElement.classList.contains('active') ) {
-					count ++
-					emptyBoard(count);
 					event.target.classList.add(p2.className);
+					emptyBoard();
 					winCombo(p2.className);
 				}					
 				//toggle active class
 				toggleActive();
 			});							
 		}
-
-	
 	},
 	
 	winScreen: function() {
 		console.log('win screen to be built');
 		//func winScreen	
-			//take in constructor function color (to be added)
-			//use the constructor function symbol
-			//use the constructor func name
+			//put in class provided on constructor function. 
+			//Winner: 
+			//put in name provided on constructor function
 			//see template			
 	},
 	
@@ -166,8 +160,8 @@ const ticTacToe = {
 		const userName = this.checkIfNameValid(this.userPromptQuestion);
 		const friendName = this.checkIfNameValid(this.userFriendPromptQuestion);
 		//2 constructor functions for player names
-		const firstPlayer = new this.createPlayer(userName, this.DOMReferences.player1, 'o.svg', 'box-filled-1');
-		const secondPlayer = new this.createPlayer(friendName, this.DOMReferences.player2, 'x.svg', 'box-filled-2');
+		const firstPlayer = new this.createPlayer(userName, this.DOMReferences.player1, 'o.svg', 'box-filled-1', 'screen-win-one');
+		const secondPlayer = new this.createPlayer(friendName, this.DOMReferences.player2, 'x.svg', 'box-filled-2', 'screen-win-two');
 			
 		//create span element put in userName and friendName and insert into the DOM as child of li.
 		const span1 = document.createElement('span');
@@ -208,7 +202,6 @@ const ticTacToe = {
 			this.DOMReferences.li[i].classList.remove('box-filled-1');
 			this.DOMReferences.li[i].classList.remove('box-filled-2');
 		}
-	
 		const startDiv = document.querySelector('.screen-start');
 		startDiv.style.display = 'none';
 		this.DOMReferences.board.style.display = '';	
@@ -226,19 +219,31 @@ const ticTacToe = {
 		}								
 	},
 	
-	emptyBoard: function(count) {
-		if (count === 9) {
-			return ticTacToe.drawScreen(ticTacToe.player1, ticTacToe.player2);
-		} else {
-			return;
-		}		
+	emptyBoard: function() {
+		let filledUp = true;
+		for (let i = 0; i < ticTacToe.DOMReferences.li.length; i++) {
+			if (!(ticTacToe.DOMReferences.li[i].classList.contains('box-filled-1')) && !(ticTacToe.DOMReferences.li[i].classList.contains('box-filled-2'))) {
+				filledUp = false;
+				return;
+			}
+		}
+		if (filledUp) {
+			return ticTacToe.drawScreen();
+		}	
 	},
 
-	drawScreen: function(p1, p2) {
-		//gradient background of orange and blue
+	drawScreen: function() {
+		//It's a Tie!
+		//class name is screen-win-tie
+		//delegated event handler when button is clicked to start new game.
+		//hide screen-win
+		//run this.showBoard();
 		console.log('draw game screen to be built');
+	},
+	
+	endingScreenTemplate: function() {
+		//generic template for ending screen
+		//can be specialized when invoked to the winner and draw results.
 	}
 
 };
-
-
