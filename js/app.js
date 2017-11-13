@@ -10,6 +10,9 @@ const ticTacToe = {
 						ul: document.querySelector('.boxes'),
 						li: document.querySelectorAll('.box')
 					},	
+					
+	//counter
+	count: 0,
 
 	//null value for now, will add value of instantiated constructor functions.		
 	playerOne: null,
@@ -39,7 +42,7 @@ const ticTacToe = {
 		let p1 = this.playerOne;
 		let p2 = this.playerTwo;	
 		let emptyBoard = this.emptyBoard;
-		let winCombo = this.winCombo;
+		let winComboOrDraw = this.winComboOrDraw;
 		let toggleActive = this.toggleActive;
 		
 		for (let i = 0; i< this.DOMReferences.li.length; i++) {	
@@ -68,18 +71,17 @@ const ticTacToe = {
 			//click event
 			this.DOMReferences.li[i].addEventListener('click',  function(event) {
 				if ( !(event.target.classList.contains('box-filled-1')) && !(event.target.classList.contains('box-filled-2')) && p1.DOMElement.classList.contains('active') ) {	
+					ticTacToe.count ++;
 					//add proper class to that square.
 					event.target.classList.add(p1.className);
-					//check if no more empty squares 
-					emptyBoard();					
-					//check if move is a win combo
-					winCombo(p1);
+					//check if move is a win combo 
+					winComboOrDraw(p1);				
 					//toggle active class only when condition is met.
 					toggleActive();
 				} else if ( !(event.target.classList.contains('box-filled-1')) && !(event.target.classList.contains('box-filled-2')) && p2.DOMElement.classList.contains('active') ) {
+					ticTacToe.count ++;
 					event.target.classList.add(p2.className);
-					emptyBoard();
-					winCombo(p2);
+					winComboOrDraw(p2);
 					toggleActive();
 				}					
 			});							
@@ -87,12 +89,13 @@ const ticTacToe = {
 	},
 	
 	winScreen: function(player) {
+		ticTacToe.count = 0;
 		ticTacToe.DOMReferences.board.style.display = 'none';
 		ticTacToe.endingScreenTemplate();
 		const message = document.querySelector('.message');
 		//put in name provided on constructor function	
 		message.textContent = `Winner: ${player.name}`;
-		const screenDiv = document.querySelector('#finish');
+		let screenDiv = document.getElementById('finish');
 		//give proper class name provided on constructor function. 
 		screenDiv.className = `screen screen-win ${player.winClass}`;
 		//delegated event handler when button is clicked to start new game.
@@ -106,7 +109,7 @@ const ticTacToe = {
 		});					
 	},
 	
-	winCombo: function(player) {
+	winComboOrDraw: function(player) {
 		//provide boolean value as flag checker.
 		let gameOver = false;
 	/*	NOTE: IF A METHOD IS CALLED WITHIN A CALLBACK, BE CAREFUL WITH THIS KEYWORD. 
@@ -126,9 +129,11 @@ const ticTacToe = {
 				return ticTacToe.winScreen(player);
 			}		
 		}
-		if (!gameOver) {
+		if (!gameOver && ticTacToe.count === 9) {
+			ticTacToe.drawScreen();
+		} else {
 			return true;
-		}			
+		}	
 	},
 		
 	initialize: function() {
@@ -233,7 +238,7 @@ const ticTacToe = {
 		}								
 	},
 	
-	emptyBoard: function() {
+/* 	emptyBoard: function() { 
 		let filledUp = true;
 		for (let i = 0; i < ticTacToe.DOMReferences.li.length; i++) {
 			if (!(ticTacToe.DOMReferences.li[i].classList.contains('box-filled-1')) && !(ticTacToe.DOMReferences.li[i].classList.contains('box-filled-2'))) {
@@ -244,17 +249,17 @@ const ticTacToe = {
 		if (filledUp) {
 			return ticTacToe.drawScreen();
 		}	
-	},
+	}, */
 
 	drawScreen: function() {
+		ticTacToe.count = 0;
 		ticTacToe.DOMReferences.board.style.display = 'none';
 		ticTacToe.endingScreenTemplate();
 		const message = document.querySelector('.message');
 		message.textContent = "It's a Tie!";
-		const screenDiv = document.querySelector('#finish');
+		let screenDiv = document.getElementById('finish');
 		//give proper class name
 		screenDiv.className = "screen screen-win screen-win-tie";
-		
 		//delegated event handler when button is clicked to start new game.
 		ticTacToe.DOMReferences.body.addEventListener('click', function (event) {
 			if (event.target.tagName === 'A' && event.target.id === 'newButton') {
