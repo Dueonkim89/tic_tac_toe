@@ -52,8 +52,6 @@ const ticTacToe = {
 				if ( !(event.target.classList.contains('box-filled-1')) && !(event.target.classList.contains('box-filled-2')) && p1.DOMElement.classList.contains('active')  ) {				
 					//set the square to playerOne's svg image
 					event.target.style.backgroundImage = `url(./img/${p1.symbol})`;
-					//code below for future reference when wanting to remove callback from anon function.
-					//this.DOMReferences.li[i].removeEventListener('mouseover', arguments.callee);
 				} else if ( !(event.target.classList.contains('box-filled-1')) && !(event.target.classList.contains('box-filled-2')) && p2.DOMElement.classList.contains('active')) {
 					event.target.style.backgroundImage = `url(./img/${p2.symbol})`;	
 				}
@@ -105,15 +103,17 @@ const ticTacToe = {
 				screenDiv.parentNode.removeChild(screenDiv);
 				//run this.showBoard();
 				ticTacToe.showBoard();
+				//remove event handler after it is ran, don't want it to stack.
+				ticTacToe.DOMReferences.body.removeEventListener('click', arguments.callee);
 			}							
 		});					
 	},
 	
 	winComboOrDraw: function(player) {
 		//provide boolean value as flag checker.
-		let gameOver = false;
+		let win = false;
 	/*	NOTE: IF A METHOD IS CALLED WITHIN A CALLBACK, BE CAREFUL WITH THIS KEYWORD. 
-		THIS WILL REFER TO THE EVENT THAT TRIGGERED THE CALLBACK EVEN WHEN YOU ARE INSIDE
+		THIS WILL REFER TO THE DOM ELEMENT THAT TRIGGERED THE CALLBACK EVEN WHEN YOU ARE INSIDE
 		ANOTHER METHOD.	*/
 		for (let i = 0; i < ticTacToe.winPatterns.length; i++) {
 			let eachPattern = ticTacToe.winPatterns[i];
@@ -124,12 +124,12 @@ const ticTacToe = {
 			});
 			//if array doesnt contain any false values, then winning combo exists.
 			if (result.indexOf(false) === -1) {
-				let gameOver = true;
+				let win = true;
 				//winScreen method
 				return ticTacToe.winScreen(player);
 			}		
 		}
-		if (!gameOver && ticTacToe.count === 9) {
+		if (!win && ticTacToe.count === 9) {
 			ticTacToe.drawScreen();
 		} else {
 			return true;
@@ -172,19 +172,12 @@ const ticTacToe = {
 		});
 	},
 	
-	playWithFriend: function() {
-		//prompt for names
-		const userName = this.checkIfNameValid(this.userPromptQuestion);
-		const friendName = this.checkIfNameValid(this.userFriendPromptQuestion);
-		//2 constructor functions for player names
-		const firstPlayer = new this.createPlayer(userName, this.DOMReferences.player1, 'o.svg', 'box-filled-1', 'screen-win-one');
-		const secondPlayer = new this.createPlayer(friendName, this.DOMReferences.player2, 'x.svg', 'box-filled-2', 'screen-win-two');
-			
+	inputNamesAndBeginGame: function(player1, player2) {
 		//create span element put in userName and friendName and insert into the DOM as child of li.
 		const span1 = document.createElement('span');
 		const span2 = document.createElement('span');
-		span1.textContent = userName + ':';
-		span2.textContent = friendName + ':';
+		span1.textContent = player1.name + ':';
+		span2.textContent = player2.name + ':';
 		this.DOMReferences.player1.insertBefore(span1, this.DOMReferences.player1.firstChild);
 		this.DOMReferences.player2.insertBefore(span2, this.DOMReferences.player2.firstChild);
 		
@@ -193,15 +186,32 @@ const ticTacToe = {
 		randomPlayer.classList.add('active');
 		
 		//set up ticTacToe keys to the two instances of createPlayer constructor function.
-		this.playerOne = firstPlayer;
-		this.playerTwo = secondPlayer;
+		this.playerOne = player1;
+		this.playerTwo = player2;
 		//show board and allow game to continue
 		this.showBoard();
-		this.makeMove();
+		this.makeMove();		
+	}, 
+	
+	playWithFriend: function() {
+		//prompt for names
+		const userName = this.checkIfNameValid(this.userPromptQuestion);
+		const friendName = this.checkIfNameValid(this.userFriendPromptQuestion);
+		//2 constructor functions for player names
+		const firstPlayer = new this.createPlayer(userName, this.DOMReferences.player1, 'o.svg', 'box-filled-1', 'screen-win-one');
+		const secondPlayer = new this.createPlayer(friendName, this.DOMReferences.player2, 'x.svg', 'box-filled-2', 'screen-win-two');
+		
+		//call method to input name and start game.
+		this.inputNamesAndBeginGame(firstPlayer, secondPlayer);						
 	},
 	
 	playWithComputer: function() {
 		console.log('research minimax algorithm');
+		const userName = this.checkIfNameValid(this.userPromptQuestion);
+		//2 constructor functions for player and computer
+		const firstPlayer = new this.createPlayer(userName, this.DOMReferences.player1, 'o.svg', 'box-filled-1', 'screen-win-one');
+		const computer = new this.createPlayer('Computer', this.DOMReferences.player2, 'x.svg', 'box-filled-2', 'screen-win-two');
+		this.inputNamesAndBeginGame(firstPlayer, computer);			
 	},
 	
 	checkIfNameValid: function(question) {
@@ -267,6 +277,7 @@ const ticTacToe = {
 				screenDiv.parentNode.removeChild(screenDiv);
 				//run this.showBoard();
 				ticTacToe.showBoard();
+				ticTacToe.DOMReferences.body.removeEventListener('click', arguments.callee);
 			}							
 		});
 	},
