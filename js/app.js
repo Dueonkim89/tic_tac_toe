@@ -26,7 +26,6 @@ const ticTacToe = {
 					[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 4, 8], 
 					[0, 3, 6], [1, 4, 7], [2, 5, 8], [2, 4, 6]
 				],
-				
 	
 	//Constructor function for the players, to be worked on....
 	createPlayer: function(name, DOMElement, symbol, className, winClass) {
@@ -70,6 +69,7 @@ const ticTacToe = {
 			this.DOMReferences.li[i].addEventListener('click',  function(event) {
 				if ( !(event.target.classList.contains('box-filled-1')) && !(event.target.classList.contains('box-filled-2')) && p1.DOMElement.classList.contains('active') ) {	
 					ticTacToe.count ++;
+					console.log(ticTacToe.count);
 					//add proper class to that square.
 					event.target.classList.add(p1.className);
 					//check if move is a win combo 
@@ -78,6 +78,7 @@ const ticTacToe = {
 					toggleActive();
 				} else if ( !(event.target.classList.contains('box-filled-1')) && !(event.target.classList.contains('box-filled-2')) && p2.DOMElement.classList.contains('active') ) {
 					ticTacToe.count ++;
+					console.log(ticTacToe.count);
 					event.target.classList.add(p2.className);
 					winComboOrDraw(p2);
 					toggleActive();
@@ -103,9 +104,14 @@ const ticTacToe = {
 				screenDiv.parentNode.removeChild(screenDiv);
 				//run this.showBoard();
 				ticTacToe.showBoard();
+				//if computer has random class, then make it generate first move.
+				if ( (ticTacToe.playerTwo.DOMElement.classList.contains('active')) && (ticTacToe.playerTwo.name.includes('Computer')) ) {
+					ticTacToe.computersFirstMove();
+					ticTacToe.count ++;
+				}
 				//remove event handler after it is ran, don't want it to stack.
 				ticTacToe.DOMReferences.body.removeEventListener('click', arguments.callee);
-			}							
+			} 							
 		});					
 	},
 	
@@ -190,7 +196,7 @@ const ticTacToe = {
 		this.playerTwo = player2;
 		//show board and allow game to continue
 		this.showBoard();
-		this.makeMove();		
+		this.makeMove();	
 	}, 
 	
 	playWithFriend: function() {
@@ -206,12 +212,33 @@ const ticTacToe = {
 	},
 	
 	playWithComputer: function() {
-		console.log('research minimax algorithm');
 		const userName = this.checkIfNameValid(this.userPromptQuestion);
 		//2 constructor functions for player and computer
 		const firstPlayer = new this.createPlayer(userName, this.DOMReferences.player1, 'o.svg', 'box-filled-1', 'screen-win-one');
 		const computer = new this.createPlayer('Computer', this.DOMReferences.player2, 'x.svg', 'box-filled-2', 'screen-win-two');
-		this.inputNamesAndBeginGame(firstPlayer, computer);			
+		this.inputNamesAndBeginGame(firstPlayer, computer);		
+
+		//if computer has active class first, then draw random move.
+		if ( (ticTacToe.playerTwo.DOMElement.classList.contains('active')) && (ticTacToe.playerTwo.name.includes('Computer')) ) {
+			this.computersFirstMove();
+			ticTacToe.count ++;
+		}
+		
+		
+		//func to get an array representation of current game state to provide to MM
+	
+		//add event listeners here, for click event
+	
+		//minimax will run everytime human player clicks on .box
+		//once optimal position found
+		//place class on that square
+		// increment count by 1
+	
+		//then toggle the active class.
+			
+		
+		
+		
 	},
 	
 	checkIfNameValid: function(question) {
@@ -301,5 +328,25 @@ const ticTacToe = {
 		header.appendChild(h1);
 		header.appendChild(message);
 		header.appendChild(newButton);		
-	}
+	},
+	
+	computersFirstMove: function() {
+		/* permutation of 9 open slots takes way too long to calculate. 
+		fill in random spot on the board. If comp is going first. */
+		ticTacToe.DOMReferences.li[Math.floor((Math.random() * 9))].classList.add(ticTacToe.playerTwo.className);
+		ticTacToe.toggleActive();		
+	},
+
+	//minimax algorithm function, heavily influenced from FCC source. 
+	miniMax: function(board, player, depth) {
+		
+		//func to see if comp or player has won on board state.
+		
+		//new func to get array of open slots within MM
+		
+		// mm will be recursive.
+		
+		
+		
+	}	
 };
