@@ -37,22 +37,15 @@ const ticTacToe = {
 	},
 	
 	makeMove: function() {
-		//reference to object keys before going deep into callback
-		let p1 = this.playerOne;
-		let p2 = this.playerTwo;	
-		let emptyBoard = this.emptyBoard;
-		let winComboOrDraw = this.winComboOrDraw;
-		let toggleActive = this.toggleActive;
-		
 		for (let i = 0; i< this.DOMReferences.li.length; i++) {	
 			//mouseover event.
 			this.DOMReferences.li[i].addEventListener('mouseover',  function(event) {
 				//if player1 has class active and square is not filled.
-				if ( !(event.target.classList.contains('box-filled-1')) && !(event.target.classList.contains('box-filled-2')) && p1.DOMElement.classList.contains('active')  ) {				
+				if ( !(event.target.classList.contains('box-filled-1')) && !(event.target.classList.contains('box-filled-2')) && ticTacToe.playerOne.DOMElement.classList.contains('active')  ) {				
 					//set the square to playerOne's svg image
-					event.target.style.backgroundImage = `url(./img/${p1.symbol})`;
-				} else if ( !(event.target.classList.contains('box-filled-1')) && !(event.target.classList.contains('box-filled-2')) && p2.DOMElement.classList.contains('active')) {
-					event.target.style.backgroundImage = `url(./img/${p2.symbol})`;	
+					event.target.style.backgroundImage = `url(./img/${ticTacToe.playerOne.symbol})`;
+				} else if ( !(event.target.classList.contains('box-filled-1')) && !(event.target.classList.contains('box-filled-2')) && ticTacToe.playerTwo.DOMElement.classList.contains('active')) {
+					event.target.style.backgroundImage = `url(./img/${ticTacToe.playerTwo.symbol})`;	
 				}
 			});			
 			
@@ -67,19 +60,19 @@ const ticTacToe = {
 			
 			//click event
 			this.DOMReferences.li[i].addEventListener('click',  function(event) {
-				if ( !(event.target.classList.contains('box-filled-1')) && !(event.target.classList.contains('box-filled-2')) && p1.DOMElement.classList.contains('active') ) {	
+				if ( !(event.target.classList.contains('box-filled-1')) && !(event.target.classList.contains('box-filled-2')) && ticTacToe.playerOne.DOMElement.classList.contains('active') ) {	
 					ticTacToe.count ++;
 					//add proper class to that square.
-					event.target.classList.add(p1.className);
+					event.target.classList.add(ticTacToe.playerOne.className);
 					//check if move is a win combo 
-					winComboOrDraw(p1);				
+					ticTacToe.winComboOrDraw(ticTacToe.playerOne);				
 					//toggle active class only when condition is met.
-					toggleActive();
-				} else if ( !(event.target.classList.contains('box-filled-1')) && !(event.target.classList.contains('box-filled-2')) && p2.DOMElement.classList.contains('active') ) {
+					ticTacToe.toggleActive();
+				} else if ( !(event.target.classList.contains('box-filled-1')) && !(event.target.classList.contains('box-filled-2')) && ticTacToe.playerTwo.DOMElement.classList.contains('active') ) {
 					ticTacToe.count ++;
-					event.target.classList.add(p2.className);
-					winComboOrDraw(p2);
-					toggleActive();
+					event.target.classList.add(ticTacToe.playerTwo.className);
+					ticTacToe.winComboOrDraw(ticTacToe.playerTwo);
+					ticTacToe.toggleActive();
 				}					
 			});							
 		}
@@ -214,9 +207,9 @@ const ticTacToe = {
 		//this will return X's, O's and indexes of the open board.
 		return Array.prototype.map.call(ticTacToe.DOMReferences.li, function(x, index) {
 			if (x.classList.contains('box-filled-1')) {
-				return 'O';
+				return 'o.svg';
 			} else if (x.classList.contains('box-filled-2')) {
-				return 'X';
+				return 'x.svg';
 			} else {
 				return index;
 			}
@@ -236,20 +229,21 @@ const ticTacToe = {
 			ticTacToe.count ++;
 		}
 		
-		//use this as an actual parameter on the minimax function.
-		let currentGameState = this.getCurrentGameState();
+		//undefined var to capture the value returned from miniMax
+		let moveToMake;
 		
+		//click event for all iterations of li node list.
+		for (let i = 0; i< this.DOMReferences.li.length; i++) {	
+			this.DOMReferences.li[i].addEventListener('click',  function(event) {
+				//if opponent has active class then run minimax function
+				if ( ticTacToe.playerTwo.DOMElement.classList.contains('active') ) {	
+					moveToMake = ticTacToe.miniMax(ticTacToe.getCurrentGameState(), ticTacToe.playerTwo);
+				} 				
+			});				
+		}	
 		
+		//once optimal position found, place computers class on that square
 		
-		
-
-		
-	
-		//add event listeners here, for click event
-	
-		//minimax will run everytime human player clicks on .box
-		//once optimal position found
-		//place class on that square
 		// increment count by 1
 	
 		//then toggle the active class.
@@ -293,19 +287,6 @@ const ticTacToe = {
 		}								
 	},
 	
-/* 	emptyBoard: function() { 
-		let filledUp = true;
-		for (let i = 0; i < ticTacToe.DOMReferences.li.length; i++) {
-			if (!(ticTacToe.DOMReferences.li[i].classList.contains('box-filled-1')) && !(ticTacToe.DOMReferences.li[i].classList.contains('box-filled-2'))) {
-				filledUp = false;
-				return;
-			}
-		}
-		if (filledUp) {
-			return ticTacToe.drawScreen();
-		}	
-	}, */
-
 	drawScreen: function() {
 		ticTacToe.count = 0;
 		ticTacToe.DOMReferences.board.style.display = 'none';
@@ -349,21 +330,51 @@ const ticTacToe = {
 	},
 	
 	computersFirstMove: function() {
-		/* permutation of 9 open slots takes way too long to calculate. 
-		fill in random spot on the board. If comp is going first. */
+		/* miniMax on permutations of 9 open slots takes way too long to calculate. 
+		Just fill in a random spot on the board. If comp is going first. */
 		ticTacToe.DOMReferences.li[Math.floor((Math.random() * 9))].classList.add(ticTacToe.playerTwo.className);
 		ticTacToe.toggleActive();		
 	},
 
 	//minimax algorithm function, heavily influenced from FCC source. 
 	miniMax: function(board, player, depth) {
+		//1st private function within miniMax to check if there is a win
+		function findWin(board, symbol) {
+			let win = false;
+			for (let i = 0; i < ticTacToe.winPatterns.length; i++) {
+				let eachPattern = ticTacToe.winPatterns[i];
+				let result = eachPattern.map(function(x) {
+					return board[x] === symbol;
+				});	
+				if (result.indexOf(false) === -1) {
+					let win = true;
+					return true;
+				}			
+			}
+			if (!win) {
+				return false;
+			}
+		}
+
+		//2nd private func, find open slots
+		function findOpenSlots(board) {
+			let emptyPlaces = board.filter(function(slot) {
+				return slot !== 'x.svg' && slot !== 'o.svg';
+			});
+			return emptyPlaces;
+		}	
 		
-		//func to see if comp or player has won on board state.
-		
-		//new func to get array of open slots within MM
+		//increment depth if exists
+		depth ++;
+		//depth is 0 or provided argument
+		depth = depth || 0;
+		//see if player or comp won.
+		let playerWin = findWin(board, ticTacToe.playerOne.symbol); 
+		let computerWin = findWin(board, ticTacToe.playerTwo.symbol);
 		
 		// mm will be recursive.
 		
+		// count++ after it runs.
 		
 		
 	}	
