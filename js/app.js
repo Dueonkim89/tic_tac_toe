@@ -69,7 +69,6 @@ const ticTacToe = {
 			this.DOMReferences.li[i].addEventListener('click',  function(event) {
 				if ( !(event.target.classList.contains('box-filled-1')) && !(event.target.classList.contains('box-filled-2')) && p1.DOMElement.classList.contains('active') ) {	
 					ticTacToe.count ++;
-					console.log(ticTacToe.count);
 					//add proper class to that square.
 					event.target.classList.add(p1.className);
 					//check if move is a win combo 
@@ -78,7 +77,6 @@ const ticTacToe = {
 					toggleActive();
 				} else if ( !(event.target.classList.contains('box-filled-1')) && !(event.target.classList.contains('box-filled-2')) && p2.DOMElement.classList.contains('active') ) {
 					ticTacToe.count ++;
-					console.log(ticTacToe.count);
 					event.target.classList.add(p2.className);
 					winComboOrDraw(p2);
 					toggleActive();
@@ -211,6 +209,20 @@ const ticTacToe = {
 		this.inputNamesAndBeginGame(firstPlayer, secondPlayer);						
 	},
 	
+	getCurrentGameState: function() {
+		//call map method on array prototype on nodelist of li.
+		//this will return X's, O's and indexes of the open board.
+		return Array.prototype.map.call(ticTacToe.DOMReferences.li, function(x, index) {
+			if (x.classList.contains('box-filled-1')) {
+				return 'O';
+			} else if (x.classList.contains('box-filled-2')) {
+				return 'X';
+			} else {
+				return index;
+			}
+		});	
+	},
+	
 	playWithComputer: function() {
 		const userName = this.checkIfNameValid(this.userPromptQuestion);
 		//2 constructor functions for player and computer
@@ -224,8 +236,14 @@ const ticTacToe = {
 			ticTacToe.count ++;
 		}
 		
+		//use this as an actual parameter on the minimax function.
+		let currentGameState = this.getCurrentGameState();
 		
-		//func to get an array representation of current game state to provide to MM
+		
+		
+		
+
+		
 	
 		//add event listeners here, for click event
 	
