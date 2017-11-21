@@ -62,6 +62,7 @@ const ticTacToe = {
 			this.DOMReferences.li[i].addEventListener('click',  function(event) {
 				if ( !(event.target.classList.contains('box-filled-1')) && !(event.target.classList.contains('box-filled-2')) && ticTacToe.playerOne.DOMElement.classList.contains('active') ) {	
 					ticTacToe.count ++;
+					console.log('count is: ' + ticTacToe.count);
 					//add proper class to that square.
 					event.target.classList.add(ticTacToe.playerOne.className);
 					//check if move is a win combo 
@@ -79,7 +80,6 @@ const ticTacToe = {
 	},
 	
 	winScreen: function(player) {
-		ticTacToe.count = 0;
 		ticTacToe.DOMReferences.board.style.display = 'none';
 		ticTacToe.endingScreenTemplate();
 		const message = document.querySelector('.message');
@@ -91,15 +91,13 @@ const ticTacToe = {
 		//delegated event handler when button is clicked to start new game.
 		ticTacToe.DOMReferences.body.addEventListener('click', function (event) {
 			if (event.target.tagName === 'A' && event.target.id === 'newButton') {
+				ticTacToe.count = 0;
 				//remove #finish
 				screenDiv.parentNode.removeChild(screenDiv);
 				//run this.showBoard();
 				ticTacToe.showBoard();
-				//if computer has random class, then make it generate first move.
-				if ( (ticTacToe.playerTwo.DOMElement.classList.contains('active')) && (ticTacToe.playerTwo.name.includes('Computer')) ) {
-					ticTacToe.computersFirstMove();
-					ticTacToe.count ++;
-				}
+				//if computer has random class, then make it generate random first move.
+				ticTacToe.computersFirstMove();
 				//remove event handler after it is ran, don't want it to stack.
 				ticTacToe.DOMReferences.body.removeEventListener('click', arguments.callee);
 			} 							
@@ -222,35 +220,27 @@ const ticTacToe = {
 		const firstPlayer = new this.createPlayer(userName, this.DOMReferences.player1, 'o.svg', 'box-filled-1', 'screen-win-one');
 		const computer = new this.createPlayer('Computer', this.DOMReferences.player2, 'x.svg', 'box-filled-2', 'screen-win-two');
 		this.inputNamesAndBeginGame(firstPlayer, computer);		
-
-		//if computer has active class first, then draw random move.
-		if ( (ticTacToe.playerTwo.DOMElement.classList.contains('active')) && (ticTacToe.playerTwo.name.includes('Computer')) ) {
-			this.computersFirstMove();
-			ticTacToe.count ++;
-		}
-		
-		//undefined var to capture the value returned from miniMax
-		let moveToMake;
-		
+		ticTacToe.computersFirstMove();
 		//click event for all iterations of li node list.
-		for (let i = 0; i< this.DOMReferences.li.length; i++) {	
+		for (let i = 0; i< this.DOMReferences.li.length; i++) {
 			this.DOMReferences.li[i].addEventListener('click',  function(event) {
-				//if opponent has active class then run minimax function
-				if ( ticTacToe.playerTwo.DOMElement.classList.contains('active') ) {	
-					moveToMake = ticTacToe.miniMax(ticTacToe.getCurrentGameState(), ticTacToe.playerTwo);
+				//if computer has active class then run minimax function
+				if ( ticTacToe.playerTwo.DOMElement.classList.contains('active') ) {
+					//if count is 9, prematurely exit out of function.
+					if (ticTacToe.count >= 9) {
+						return false;
+					}
+					ticTacToe.count ++;
+					console.log('count is: ' + ticTacToe.count);
+					//miniMax function is ran
+					let indexToMoveTo = ticTacToe.miniMax(ticTacToe.getCurrentGameState(), ticTacToe.playerTwo).startingPosition;
+					//invoke computersMove func
+					ticTacToe.computersMove(indexToMoveTo);
+					//check if move is a win combo 
+					ticTacToe.winComboOrDraw(ticTacToe.playerTwo);
 				} 				
 			});				
-		}	
-		
-		//once optimal position found, place computers class on that square
-		
-		// increment count by 1
-	
-		//then toggle the active class.
-			
-		
-		
-		
+		}					
 	},
 	
 	checkIfNameValid: function(question) {
@@ -288,7 +278,6 @@ const ticTacToe = {
 	},
 	
 	drawScreen: function() {
-		ticTacToe.count = 0;
 		ticTacToe.DOMReferences.board.style.display = 'none';
 		ticTacToe.endingScreenTemplate();
 		const message = document.querySelector('.message');
@@ -299,10 +288,12 @@ const ticTacToe = {
 		//delegated event handler when button is clicked to start new game.
 		ticTacToe.DOMReferences.body.addEventListener('click', function (event) {
 			if (event.target.tagName === 'A' && event.target.id === 'newButton') {
+				ticTacToe.count = 0;
 				//remove #finish
 				screenDiv.parentNode.removeChild(screenDiv);
 				//run this.showBoard();
 				ticTacToe.showBoard();
+				ticTacToe.computersFirstMove();
 				ticTacToe.DOMReferences.body.removeEventListener('click', arguments.callee);
 			}							
 		});
@@ -330,9 +321,17 @@ const ticTacToe = {
 	},
 	
 	computersFirstMove: function() {
-		/* miniMax on permutations of 9 open slots takes way too long to calculate. 
-		Just fill in a random spot on the board. If comp is going first. */
-		ticTacToe.DOMReferences.li[Math.floor((Math.random() * 9))].classList.add(ticTacToe.playerTwo.className);
+		//if computer has active class first, then draw random move.
+		if ( (ticTacToe.playerTwo.DOMElement.classList.contains('active')) && (ticTacToe.playerTwo.name.includes('Computer')) ) {
+			/* the permutations of 9 open slots takes way too long to generate.
+			Just fill in a random spot on the board, if comp is going first. */
+			ticTacToe.count ++;
+			ticTacToe.computersMove(Math.floor((Math.random() * 9)));
+		}
+	},
+	
+	computersMove: function(index) {
+		ticTacToe.DOMReferences.li[index].classList.add(ticTacToe.playerTwo.className);
 		ticTacToe.toggleActive();		
 	},
 
@@ -355,7 +354,6 @@ const ticTacToe = {
 				return false;
 			}
 		}
-
 		//2nd private func, find open slots
 		function findOpenSlots(board) {
 			let emptyPlaces = board.filter(function(slot) {
@@ -371,11 +369,65 @@ const ticTacToe = {
 		//see if player or comp won.
 		let playerWin = findWin(board, ticTacToe.playerOne.symbol); 
 		let computerWin = findWin(board, ticTacToe.playerTwo.symbol);
+		//find open slots on board.
+		let openSlots = findOpenSlots(board); 	
+		//if win return a score.
+		if (computerWin) {
+			return { score: 10 - depth };
+		} else if (playerWin) {
+			return { score: depth - 10 };
+		} else if (openSlots.length === 0) {
+			return { score: 0 };
+		}	
 		
-		// mm will be recursive.
-		
-		// count++ after it runs.
-		
-		
+		//array to hold all moves and scores.
+		let listOfMoves = [];
+		//loop through the open slots.
+		for (let i = 0; i <openSlots.length; i++) {
+			let eachMove = {};
+			let firstOpenSlot = openSlots[i];
+			eachMove.startingPosition = firstOpenSlot;		
+			//set the first slot to the players sign
+			board[firstOpenSlot] = player.symbol;
+			
+			if (player === ticTacToe.playerTwo) {
+				//invoke next recusion with opposing player
+				let nextRecursion = ticTacToe.miniMax(board, ticTacToe.playerOne, depth);
+				//object will be returned, but we are interested in the .score key
+				eachMove.score = nextRecursion.score;			
+			} else {
+				let nextRecursion = ticTacToe.miniMax(board, ticTacToe.playerTwo, depth);
+				eachMove.score = nextRecursion.score;				
+			}
+			/*only when a score is returned, we reset the slot[i] back to its original, to loop through all
+			possible permutations per openSlot[i] */
+			board[firstOpenSlot] = firstOpenSlot;
+			listOfMoves.push(eachMove);					
+		}
+		//undefined var to capture the best move.
+		let bestMove;
+		//reference numbers defined out of scope of the for loop.
+		let highestMove = -100;
+		let lowestMove = 100;
+		//loop through list of moves.
+		for (let i = 0; i < listOfMoves.length; i++) {
+			//if computer, pick highest score
+			if (player === ticTacToe.playerTwo) {
+				//define highestMove & lowestMove out of scope for loop or else undefined will be referenced.
+				if (listOfMoves[i].score > highestMove) {
+					//if current iteration score is greater than -100, replace highestMove with that score
+					highestMove = listOfMoves[i].score;
+					//set bestMove as that iteration.
+					bestMove = i;
+				}
+			//else pick lowest score	
+			} else {
+				if (listOfMoves[i].score < lowestMove) {
+					lowestMove = listOfMoves[i].score;
+					bestMove = i;
+				}
+			}										
+		}
+		return listOfMoves[bestMove];	
 	}	
 };
